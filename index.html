@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator and Downloader</title>
+    <!-- Importe as bibliotecas necessárias -->
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
+</head>
+<body>
+    <script>
+        async function generateAndDownloadQRImages(urls) {
+            // Crie um objeto JSZip
+            const zip = new JSZip();
+
+            // Itere sobre as URLs
+            for (let i = 0; i < urls.length; i++) {
+                const url = urls[i];
+
+                // Crie um código QR usando a biblioteca qrcode
+                const qr = new QRCode(document.createElement('div'), {
+                    text: url,
+                    width: 128,
+                    height: 128,
+                });
+
+                // Obtenha a imagem do código QR como um blob
+                const qrBlob = await new Promise(resolve => {
+                    qr._htOption.onMakeImage = (img) => {
+                        img.toBlob(resolve);
+                    };
+                    qr.makeCode(url);
+                });
+
+                // Adicione a imagem ao arquivo zip
+                zip.file(`qr_code_${i}.png`, qrBlob);
+            }
+
+            // Gere o arquivo zip
+            const zipBlob = await zip.generateAsync({ type: 'blob' });
+
+            // Crie um objeto URL para o blob
+            const zipUrl = URL.createObjectURL(zipBlob);
+
+            // Crie um elemento anchor para o download
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.href = zipUrl;
+            downloadAnchor.download = 'qrcodes.zip';
+
+            // Adicione o elemento anchor ao documento
+            document.body.appendChild(downloadAnchor);
+
+            // Dispare um clique no elemento anchor para iniciar o download
+            downloadAnchor.click();
+
+            // Remova o elemento anchor do documento
+            document.body.removeChild(downloadAnchor);
+        }
+
+        // Obtenha a lista de URLs do parâmetro 'links' na URL da página
+        const linksParam = new URLSearchParams(window.location.search).get('links');
+        const urls = linksParam ? linksParam.split(',') : [];
+
+        // Chame a função para gerar códigos QR e fazer o download
+        if (urls.length > 0) {
+            generateAndDownloadQRImages(urls);
+        } else {
+            console.error('Nenhuma URL encontrada para processar.');
+        }
+    </script>
+</body>
+</html>
