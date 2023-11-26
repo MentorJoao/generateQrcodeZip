@@ -48,81 +48,66 @@
   </div>
 
   <script>
-    // Lista de blobs para download
-    const blobsDownload = [];
-    const textos = [];
-
-    function gerarQRCode(url, texto) {
-      // Converter a imagem para um blob
-      fetch(`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(url)}&size=100x100`)
-        .then(response => response.blob())
-        .then(blob => {
-          // Adicionar blob à lista
-          blobsDownload.push({ blob, texto });
-          textos.push(texto);
-        })
-        .catch(error => console.error('Erro ao obter blob:', error));
-    }
-
     // Obter parâmetros da URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const urlsParam = urlParams.get('urls');
-    const textosParam = urlParams.get('textos');
+const urlParams = new URLSearchParams(window.location.search);
+const urlsParam = urlParams.get('urls');
+const textosParam = urlParams.get('textos');
 
-    // Verificar se os parâmetros estão presentes
-    if (urlsParam && textosParam) {
-      // Converter strings de parâmetros em arrays
-      const urls = urlsParam.split(',');
-      const textosParam = textosParam.split(',');
+// Verificar se os parâmetros estão presentes
+if (urlsParam && textosParam) {
+  // Converter strings de parâmetros em arrays
+  const urls = urlsParam.split(',');
+  const textos = textosParam.split(',');
 
-      // Gerar QR Codes e blobs
-      urls.forEach((url, index) => {
-        gerarQRCode(url, textosParam[index]);
-      });
+  // Gerar QR Codes e blobs
+  urls.forEach((url, index) => {
+    gerarQRCode(url, textos[index]);
+  });
 
-      // Exibir botão de download para todas as imagens
-      const botaoDownload = document.getElementById('downloadButton');
-      botaoDownload.addEventListener('click', () => {
-        // Criar um arquivo ZIP com as imagens e realizar o download
-        const zip = new JSZip();
-        blobsDownload.forEach(({ blob, texto }, index) => {
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
+  // Exibir botão de download para todas as imagens
+  const botaoDownload = document.getElementById('downloadButton');
+  botaoDownload.addEventListener('click', () => {
+    // Criar um arquivo ZIP com as imagens e realizar o download
+    const zip = new JSZip();
+    blobsDownload.forEach(({ blob, texto }, index) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
 
-          const img = new Image();
-          img.onload = function () {
-            canvas.width = img.width;
-            canvas.height = img.height + 20; // Ajustar para dar espaço ao texto abaixo do QR Code
-            ctx.drawImage(img, 0, 0);
-            ctx.font = '14px Arial';
-            ctx.fillStyle = '#000000';
-            ctx.textAlign = 'center';
-            ctx.fillText(texto, img.width / 2, img.height + 14);
+      const img = new Image();
+      img.onload = function () {
+        canvas.width = img.width;
+        canvas.height = img.height + 20; // Ajustar para dar espaço ao texto abaixo do QR Code
+        ctx.drawImage(img, 0, 0);
+        ctx.font = '14px Arial';
+        ctx.fillStyle = '#000000';
+        ctx.textAlign = 'center';
+        ctx.fillText(texto, img.width / 2, img.height + 14);
 
-            canvas.toBlob((combinedBlob) => {
-              zip.file(`${texto}.png`, combinedBlob);
-              if (index === blobsDownload.length - 1) {
-                zip.generateAsync({ type: 'blob' })
-                  .then(content => {
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(content);
-                    link.download = 'imagens.zip';
-                    link.click();
-                  })
-                  .catch(error => console.error('Erro ao gerar arquivo ZIP:', error));
-              }
-            });
-          };
-
-          img.src = URL.createObjectURL(blob);
+        canvas.toBlob((combinedBlob) => {
+          zip.file(`${texto}.png`, combinedBlob);
+          if (index === blobsDownload.length - 1) {
+            zip.generateAsync({ type: 'blob' })
+              .then(content => {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(content);
+                link.download = 'imagens.zip';
+                link.click();
+              })
+              .catch(error => console.error('Erro ao gerar arquivo ZIP:', error));
+          }
         });
-      });
+      };
 
-    } else {
-      // Exibir mensagem de erro se os parâmetros estiverem ausentes
-      const erroElement = document.getElementById('erroMessage');
-      erroElement.style.display = 'block';
-    }
+      img.src = URL.createObjectURL(blob);
+    });
+  });
+
+} else {
+  // Exibir mensagem de erro se os parâmetros estiverem ausentes
+  const erroElement = document.getElementById('erroMessage');
+  erroElement.style.display = 'block';
+}
+
   </script>
 
 </body>
