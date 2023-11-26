@@ -28,14 +28,10 @@
       // Adicionar uma linha de quebra
       document.body.appendChild(container);
       document.body.appendChild(document.createElement('hr'));
-
-      // Criar link de download para a imagem
-      const link = document.createElement('a');
-      link.href = img.src;
-      link.download = `${texto}.png`;
-      link.innerText = 'Baixar Imagem';
-      document.body.appendChild(link);
     }
+
+    // Lista de links para download
+    const linksDownload = [];
 
     // Obter parâmetros da URL
     const urlParams = new URLSearchParams(window.location.search);
@@ -51,11 +47,30 @@
       // Gerar QR Codes e imagens
       urls.forEach((url, index) => {
         gerarQRCode(url, textos[index]);
+
+        // Criar link de download para a imagem
+        const link = document.createElement('a');
+        link.href = img.src;
+        link.download = `${textos[index]}.png`;
+        link.style.display = 'none'; // Ocultar link
+        document.body.appendChild(link);
+
+        // Adicionar link à lista
+        linksDownload.push(link);
       });
+
+      // Exibir botão de download para todas as imagens
+      const botaoDownload = document.createElement('button');
+      botaoDownload.innerText = 'Baixar Todas as Imagens';
+      botaoDownload.addEventListener('click', () => {
+        // Simular cliques nos links de download
+        linksDownload.forEach(link => link.click());
+      });
+      document.body.appendChild(botaoDownload);
 
       // Exibir mensagem de sucesso
       const sucessoElement = document.createElement('p');
-      sucessoElement.innerText = 'Imagens baixadas com sucesso!';
+      sucessoElement.innerText = 'Imagens geradas com sucesso!';
       document.body.appendChild(sucessoElement);
     } else {
       // Exibir mensagem de erro se os parâmetros estiverem ausentes
