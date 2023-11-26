@@ -22,6 +22,7 @@
       background-color: #ffffff;
       padding: 20px;
       text-align: center;
+      display: none;
     }
 
     .download-button {
@@ -42,72 +43,91 @@
 </head>
 <body>
 
-  <div class="download-container">
+  <div class="download-container" id="downloadContainer">
     <button class="download-button" id="downloadButton">Baixar todos QRCode</button>
     <p id="erroMessage" style="display: none; color: red;">Parâmetros "urls" e "textos" ausentes na URL.</p>
   </div>
 
   <script>
+    // Lista de blobs para download
+    const blobsDownload = [];
+    const textos = [];
+
+    function gerarQRCode(url, texto) {
+      // Converter a imagem para um blob
+      fetch(`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(url)}&size=100x100`)
+        .then(response => response.blob())
+        .then(blob => {
+          // Adicionar blob à lista
+          blobsDownload.push({ blob, texto });
+          textos.push(texto);
+        })
+        .catch(error => console.error('Erro ao obter blob:', error));
+    }
+
     // Obter parâmetros da URL
-const urlParams = new URLSearchParams(window.location.search);
-const urlsParam = urlParams.get('urls');
-const textosParam = urlParams.get('textos');
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlsParam = urlParams.get('urls');
+    const textosParam = urlParams.get('textos');
 
-// Verificar se os parâmetros estão presentes
-if (urlsParam && textosParam) {
-  // Converter strings de parâmetros em arrays
-  const urls = urlsParam.split(',');
-  const textos = textosParam.split(',');
+    // Verificar se os parâmetros estão presentes
+    if (urlsParam && textosParam) {
+      // Converter strings de parâmetros em arrays
+      const urls = urlsParam.split(',');
+      const textosParam = textosParam.split(',');
 
-  // Gerar QR Codes e blobs
-  urls.forEach((url, index) => {
-    gerarQRCode(url, textos[index]);
-  });
+      // Gerar QR Codes e blobs
+      urls.forEach((url, index) => {
+        gerarQRCode(url, textosParam[index]);
+      });
 
-  // Exibir botão de download para todas as imagens
-  const botaoDownload = document.getElementById('downloadButton');
-  botaoDownload.addEventListener('click', () => {
-    // Criar um arquivo ZIP com as imagens e realizar o download
-    const zip = new JSZip();
-    blobsDownload.forEach(({ blob, texto }, index) => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
+      // Exibir as imagens e o botão de download
+      const downloadContainer = document.getElementById('downloadContainer');
+      downloadContainer.style.display = 'block';
 
-      const img = new Image();
-      img.onload = function () {
-        canvas.width = img.width;
-        canvas.height = img.height + 20; // Ajustar para dar espaço ao texto abaixo do QR Code
-        ctx.drawImage(img, 0, 0);
-        ctx.font = '14px Arial';
-        ctx.fillStyle = '#000000';
-        ctx.textAlign = 'center';
-        ctx.fillText(texto, img.width / 2, img.height + 14);
+      // Exibir botão de download para todas as imagens
+      const botaoDownload = document.getElementById('downloadButton');
+      botaoDownload.addEventListener('click', () => {
+        // Criar um arquivo ZIP com as imagens e realizar o download
+        const zip = new JSZip();
+        blobsDownload.forEach(({ blob, texto }, index) => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
 
-        canvas.toBlob((combinedBlob) => {
-          zip.file(`${texto}.png`, combinedBlob);
-          if (index === blobsDownload.length - 1) {
-            zip.generateAsync({ type: 'blob' })
-              .then(content => {
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(content);
-                link.download = 'imagens.zip';
-                link.click();
-              })
-              .catch(error => console.error('Erro ao gerar arquivo ZIP:', error));
-          }
+          const img = new Image();
+          img.onload = function () {
+            canvas.width = img.width;
+            canvas.height = img.height + 20; // Ajustar para dar espaço ao texto abaixo do QR Code
+            ctx.drawImage(img, 0, 0);
+            ctx.font = '14px Arial';
+            ctx.fillStyle = '#000000';
+            ctx.textAlign = 'center';
+            ctx.fillText(texto, img.width / 2, img.height + 14);
+
+            canvas.toBlob((combinedBlob) => {
+              zip.file(`${texto}.png`, combinedBlob);
+              if (index === blobsDownload.length - 1) {
+                zip.generateAsync({ type: 'blob' })
+                  .then(content => {
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(content);
+                    link.download = 'imagens.zip';
+                    link.click();
+                  })
+                  .catch(error => console.error('Erro ao gerar arquivo ZIP:', error));
+              }
+            });
+          };
+
+          img.src = URL.createObjectURL(blob);
         });
-      };
+      });
 
-      img.src = URL.createObjectURL(blob);
-    });
-  });
-
-} else {
-  // Exibir mensagem de erro se os parâmetros estiverem ausentes
-  const erroElement = document.getElementById('erroMessage');
-  erroElement.style.display = 'block';
-}
-
+    } else {
+      // Exibir mensagem de erro se os parâmetros estiverem ausentes
+      const erroElement = document.getElementById('erroMessage');
+      erroElement.style.display = 'block';
+    }
   </script>
 
 </body>
