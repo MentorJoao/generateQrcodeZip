@@ -8,7 +8,10 @@
   <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
 </head>
 <body>
-<script>
+ <script>
+    // Lista de links para download
+    const linksDownload = [];
+
     function gerarQRCode(url, texto) {
       // Criar contêiner para QR Code e texto
       const container = document.createElement('div');
@@ -28,10 +31,17 @@
       // Adicionar uma linha de quebra
       document.body.appendChild(container);
       document.body.appendChild(document.createElement('hr'));
-    }
 
-    // Lista de links para download
-    const linksDownload = [];
+      // Criar link de download para a imagem
+      const link = document.createElement('a');
+      link.href = img.src;
+      link.download = `${texto}.png`;
+      link.style.display = 'none'; // Ocultar link
+      document.body.appendChild(link);
+
+      // Adicionar link à lista
+      linksDownload.push(link);
+    }
 
     // Obter parâmetros da URL
     const urlParams = new URLSearchParams(window.location.search);
@@ -47,16 +57,6 @@
       // Gerar QR Codes e imagens
       urls.forEach((url, index) => {
         gerarQRCode(url, textos[index]);
-
-        // Criar link de download para a imagem
-        const link = document.createElement('a');
-        link.href = img.src;
-        link.download = `${textos[index]}.png`;
-        link.style.display = 'none'; // Ocultar link
-        document.body.appendChild(link);
-
-        // Adicionar link à lista
-        linksDownload.push(link);
       });
 
       // Exibir botão de download para todas as imagens
