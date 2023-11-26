@@ -11,19 +11,23 @@
 
   <script>
     function gerarQRCode(url, texto) {
+      // Criar contêiner para QR Code e texto
+      const container = document.createElement('div');
+
       // Código QR e imagem
-      const qrCode = new QRCode(document.getElementById(texto), url);
+      const qrCode = new QRCode(container, url);
       const img = document.createElement('img');
       img.src = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(url)}&size=100x100`;
       img.alt = 'QR Code';
-      document.body.appendChild(img);
+      container.appendChild(img);
       
       // Texto abaixo do QR Code
       const textoElement = document.createElement('p');
       textoElement.innerText = texto;
-      document.body.appendChild(textoElement);
+      container.appendChild(textoElement);
 
       // Adicionar uma linha de quebra
+      document.body.appendChild(container);
       document.body.appendChild(document.createElement('hr'));
     }
 
