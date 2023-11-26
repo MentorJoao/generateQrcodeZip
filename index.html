@@ -12,14 +12,53 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #F8BC2D;
     }
 
-    button {
-      margin-top: 20px;
+    .download-container {
+      border-radius: 8px;
+      background-color: #ffffff;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .back-button {
+      background-color: #12344D;
+      color: #ffffff;
+      font-weight: bold;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+
+    .download-button {
+      background-color: #12344D;
+      color: #ffffff;
+      font-weight: bold;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+    }
+
+    .download-image {
+      margin-top: 10px;
+      max-width: 100%;
     }
   </style>
 </head>
 <body>
+
+  <div class="download-container">
+    <button class="back-button" onclick="history.back()">Navigate Back</button>
+    <img class="download-image" src="https://storage.googleapis.com/flutterflow-io-6f20.appspot.com/projects/kontaaki-a47de9/assets/gnecak1ntf5v/WhatsApp_Image_2023-09-12_at_09.29_1.png" alt="Download Image">
+    <button class="download-button" id="downloadButton">Baixar Todas as Imagens</button>
+    <p id="sucessoMessage" style="display: none; color: green;">Imagens geradas com sucesso!</p>
+    <p id="erroMessage" style="display: none; color: red;">Parâmetros "urls" e "textos" ausentes na URL.</p>
+  </div>
 
   <script>
     // Lista de blobs para download
@@ -53,8 +92,7 @@
       });
 
       // Exibir botão de download para todas as imagens
-      const botaoDownload = document.createElement('button');
-      botaoDownload.innerText = 'Baixar Todas as Imagens';
+      const botaoDownload = document.getElementById('downloadButton');
       botaoDownload.addEventListener('click', () => {
         // Criar um arquivo ZIP com os blobs e realizar o download
         const zip = new JSZip();
@@ -70,17 +108,15 @@
           })
           .catch(error => console.error('Erro ao gerar arquivo ZIP:', error));
       });
-      document.body.appendChild(botaoDownload);
 
       // Exibir mensagem de sucesso
-      const sucessoElement = document.createElement('p');
-      sucessoElement.innerText = 'Imagens geradas com sucesso!';
-      document.body.appendChild(sucessoElement);
+      const sucessoElement = document.getElementById('sucessoMessage');
+      sucessoElement.style.display = 'block';
+
     } else {
       // Exibir mensagem de erro se os parâmetros estiverem ausentes
-      const erroElement = document.createElement('p');
-      erroElement.innerText = 'Parâmetros "urls" e "textos" ausentes na URL.';
-      document.body.appendChild(erroElement);
+      const erroElement = document.getElementById('erroMessage');
+      erroElement.style.display = 'block';
     }
   </script>
 </body>
