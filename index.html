@@ -6,11 +6,12 @@
   <title>QR Code Generator</title>
   <!-- Biblioteca QR Code -->
   <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
 </head>
 <body>
- <script>
-    // Lista de links para download
-    const linksDownload = [];
+<script>
+    // Lista de blobs para download
+    const blobsDownload = [];
 
     function gerarQRCode(url, texto) {
       // Criar contêiner para QR Code e texto
@@ -32,15 +33,21 @@
       document.body.appendChild(container);
       document.body.appendChild(document.createElement('hr'));
 
-      // Criar link de download para a imagem
-      const link = document.createElement('a');
-      link.href = img.src;
-      link.download = `${texto}.png`;
-      link.style.display = 'none'; // Ocultar link
-      document.body.appendChild(link);
+      // Converter a imagem para um blob
+      fetch(img.src)
+        .then(response => response.blob())
+        .then(blob => {
+          // Criar link de download para o blob
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = `${texto}.png`;
+          link.style.display = 'none'; // Ocultar link
+          document.body.appendChild(link);
 
-      // Adicionar link à lista
-      linksDownload.push(link);
+          // Adicionar link à lista
+          blobsDownload.push(blob);
+        })
+        .catch(error => console.error('Erro ao obter blob:', error));
     }
 
     // Obter parâmetros da URL
@@ -63,8 +70,19 @@
       const botaoDownload = document.createElement('button');
       botaoDownload.innerText = 'Baixar Todas as Imagens';
       botaoDownload.addEventListener('click', () => {
-        // Simular cliques nos links de download
-        linksDownload.forEach(link => link.click());
+        // Criar um arquivo ZIP com os blobs e realizar o download
+        const zip = new JSZip();
+        blobsDownload.forEach((blob, index) => {
+          zip.file(`${textos[index]}.png`, blob);
+        });
+        zip.generateAsync({ type: 'blob' })
+          .then(content => {
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(content);
+            link.download = 'imagens.zip';
+            link.click();
+          })
+          .catch(error => console.error('Erro ao gerar arquivo ZIP:', error));
       });
       document.body.appendChild(botaoDownload);
 
@@ -79,8 +97,5 @@
       document.body.appendChild(erroElement);
     }
   </script>
-
-  
-
 </body>
 </html>
