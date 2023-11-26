@@ -8,8 +8,7 @@
   <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
 </head>
 <body>
-
-  <script>
+<script>
     function gerarQRCode(url, texto) {
       // Criar contêiner para QR Code e texto
       const container = document.createElement('div');
@@ -29,6 +28,13 @@
       // Adicionar uma linha de quebra
       document.body.appendChild(container);
       document.body.appendChild(document.createElement('hr'));
+
+      // Criar link de download para a imagem
+      const link = document.createElement('a');
+      link.href = img.src;
+      link.download = `${texto}.png`;
+      link.innerText = 'Baixar Imagem';
+      document.body.appendChild(link);
     }
 
     // Obter parâmetros da URL
