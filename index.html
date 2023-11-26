@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en"><head>
+<html lang="en">
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>QR Code Generator</title>
-  <!-- Biblioteca QR Code -->
   <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
-<style>
+  <style>
     body {
       display: flex;
       flex-direction: column;
@@ -24,16 +24,6 @@
       text-align: center;
     }
 
-    .back-button {
-      background-color: #12344D;
-      color: #ffffff;
-      font-weight: bold;
-      padding: 10px;
-      border: none;
-      border-radius: 4px;
-      margin-bottom: 10px;
-    }
-
     .download-button {
       background-color: #12344D;
       color: #ffffff;
@@ -41,6 +31,7 @@
       padding: 10px;
       border: none;
       border-radius: 4px;
+      margin-top: 40px;
     }
 
     .download-image {
@@ -52,18 +43,14 @@
 <body>
 
   <div class="download-container">
-    
-    <img class="download-image" src="https://storage.googleapis.com/flutterflow-io-6f20.appspot.com/projects/kontaaki-a47de9/assets/gnecak1ntf5v/WhatsApp_Image_2023-09-12_at_09.29_1.png" alt="Download Image">
-    <button class="download-button" id="downloadButton" style="
-    margin-top: 40px;
-">Baixar todos QRCode</button>
-    
+    <button class="download-button" id="downloadButton">Baixar todos QRCode</button>
     <p id="erroMessage" style="display: none; color: red;">Parâmetros "urls" e "textos" ausentes na URL.</p>
   </div>
 
   <script>
     // Lista de blobs para download
     const blobsDownload = [];
+    const textos = [];
 
     function gerarQRCode(url, texto) {
       // Converter a imagem para um blob
@@ -72,6 +59,7 @@
         .then(blob => {
           // Adicionar blob à lista
           blobsDownload.push({ blob, texto });
+          textos.push(texto);
         })
         .catch(error => console.error('Erro ao obter blob:', error));
     }
@@ -85,34 +73,50 @@
     if (urlsParam && textosParam) {
       // Converter strings de parâmetros em arrays
       const urls = urlsParam.split(',');
-      const textos = textosParam.split(',');
+      const textosParam = textosParam.split(',');
 
       // Gerar QR Codes e blobs
       urls.forEach((url, index) => {
-        gerarQRCode(url, textos[index]);
+        gerarQRCode(url, textosParam[index]);
       });
 
       // Exibir botão de download para todas as imagens
       const botaoDownload = document.getElementById('downloadButton');
       botaoDownload.addEventListener('click', () => {
-        // Criar um arquivo ZIP com os blobs e realizar o download
+        // Criar um arquivo ZIP com as imagens e realizar o download
         const zip = new JSZip();
-        blobsDownload.forEach(({ blob, texto }) => {
-          zip.file(`${texto}.png`, blob);
-        });
-        zip.generateAsync({ type: 'blob' })
-          .then(content => {
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(content);
-            link.download = 'imagens.zip';
-            link.click();
-          })
-          .catch(error => console.error('Erro ao gerar arquivo ZIP:', error));
-      });
+        blobsDownload.forEach(({ blob, texto }, index) => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
 
-      // Exibir mensagem de sucesso
-      const sucessoElement = document.getElementById('sucessoMessage');
-      sucessoElement.style.display = 'block';
+          const img = new Image();
+          img.onload = function () {
+            canvas.width = img.width;
+            canvas.height = img.height + 20; // Ajustar para dar espaço ao texto abaixo do QR Code
+            ctx.drawImage(img, 0, 0);
+            ctx.font = '14px Arial';
+            ctx.fillStyle = '#000000';
+            ctx.textAlign = 'center';
+            ctx.fillText(texto, img.width / 2, img.height + 14);
+
+            canvas.toBlob((combinedBlob) => {
+              zip.file(`${texto}.png`, combinedBlob);
+              if (index === blobsDownload.length - 1) {
+                zip.generateAsync({ type: 'blob' })
+                  .then(content => {
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(content);
+                    link.download = 'imagens.zip';
+                    link.click();
+                  })
+                  .catch(error => console.error('Erro ao gerar arquivo ZIP:', error));
+              }
+            });
+          };
+
+          img.src = URL.createObjectURL(blob);
+        });
+      });
 
     } else {
       // Exibir mensagem de erro se os parâmetros estiverem ausentes
@@ -121,5 +125,5 @@
     }
   </script>
 
-
-</body></html>
+</body>
+</html>
