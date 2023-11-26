@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="en"><head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>QR Code Generator</title>
@@ -53,10 +52,12 @@
 <body>
 
   <div class="download-container">
-    <button class="back-button" onclick="history.back()">Navigate Back</button>
+    
     <img class="download-image" src="https://storage.googleapis.com/flutterflow-io-6f20.appspot.com/projects/kontaaki-a47de9/assets/gnecak1ntf5v/WhatsApp_Image_2023-09-12_at_09.29_1.png" alt="Download Image">
-    <button class="download-button" id="downloadButton">Baixar Todas as Imagens</button>
-    <p id="sucessoMessage" style="display: none; color: green;">Imagens geradas com sucesso!</p>
+    <button class="download-button" id="downloadButton" style="
+    margin-top: 40px;
+">Baixar todos QRCode</button>
+    
     <p id="erroMessage" style="display: none; color: red;">Parâmetros "urls" e "textos" ausentes na URL.</p>
   </div>
 
@@ -119,5 +120,6 @@
       erroElement.style.display = 'block';
     }
   </script>
-</body>
-</html>
+
+
+</body></html>
