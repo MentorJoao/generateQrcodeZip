@@ -74,11 +74,11 @@
     if (urlsParam && textosParam) {
       // Converter strings de parâmetros em arrays
       const urls = urlsParam.split(',');
-      const textosParam = textosParam.split(',');
+      const textos = textosParam.split(',');
 
       // Gerar QR Codes e blobs
       urls.forEach((url, index) => {
-        gerarQRCode(url, textosParam[index]);
+        gerarQRCode(url, textos[index]);
       });
 
       // Exibir as imagens e o botão de download
