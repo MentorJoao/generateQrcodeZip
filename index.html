@@ -7,45 +7,31 @@
   <!-- Biblioteca QR Code -->
   <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
+<style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    button {
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body>
-<script>
+
+  <script>
     // Lista de blobs para download
     const blobsDownload = [];
 
     function gerarQRCode(url, texto) {
-      // Criar contêiner para QR Code e texto
-      const container = document.createElement('div');
-
-      // Código QR e imagem
-      const qrCode = new QRCode(container, url);
-      const img = document.createElement('img');
-      img.src = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(url)}&size=100x100`;
-      img.alt = 'QR Code';
-      container.appendChild(img);
-      
-      // Texto abaixo do QR Code
-      const textoElement = document.createElement('p');
-      textoElement.innerText = texto;
-      container.appendChild(textoElement);
-
-      // Adicionar uma linha de quebra
-      document.body.appendChild(container);
-      document.body.appendChild(document.createElement('hr'));
-
       // Converter a imagem para um blob
-      fetch(img.src)
+      fetch(`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(url)}&size=100x100`)
         .then(response => response.blob())
         .then(blob => {
-          // Criar link de download para o blob
-          const link = document.createElement('a');
-          link.href = URL.createObjectURL(blob);
-          link.download = `${texto}.png`;
-          link.style.display = 'none'; // Ocultar link
-          document.body.appendChild(link);
-
-          // Adicionar link à lista
-          blobsDownload.push(blob);
+          // Adicionar blob à lista
+          blobsDownload.push({ blob, texto });
         })
         .catch(error => console.error('Erro ao obter blob:', error));
     }
@@ -61,7 +47,7 @@
       const urls = urlsParam.split(',');
       const textos = textosParam.split(',');
 
-      // Gerar QR Codes e imagens
+      // Gerar QR Codes e blobs
       urls.forEach((url, index) => {
         gerarQRCode(url, textos[index]);
       });
@@ -72,8 +58,8 @@
       botaoDownload.addEventListener('click', () => {
         // Criar um arquivo ZIP com os blobs e realizar o download
         const zip = new JSZip();
-        blobsDownload.forEach((blob, index) => {
-          zip.file(`${textos[index]}.png`, blob);
+        blobsDownload.forEach(({ blob, texto }) => {
+          zip.file(`${texto}.png`, blob);
         });
         zip.generateAsync({ type: 'blob' })
           .then(content => {
