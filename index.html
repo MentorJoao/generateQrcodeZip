@@ -54,9 +54,10 @@
     const blobsDownload = [];
     const textos = [];
 
-    function gerarQRCode(url, texto) {
+    function gerarQRCode(url,url2, texto) {
       // Converter a imagem para um blob
-      fetch(`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(url)}&size=100x100`)
+      var urlComposta = url + '&idQRcode='+url2;
+      fetch(`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(urlComposta)}&size=100x100`)
         .then(response => response.blob())
         .then(blob => {
           // Adicionar blob à lista
@@ -69,6 +70,7 @@
     // Obter parâmetros da URL
     const urlParams = new URLSearchParams(window.location.search);
     const urlsParam = urlParams.get('urls');
+    const urlsParam = urlParams2.get('urls2');
     const textosParam = urlParams.get('textos');
 
     // Verificar se os parâmetros estão presentes
@@ -76,10 +78,11 @@
       // Converter strings de parâmetros em arrays
       const urls = urlsParam.split(',');
       const textos = textosParam.split(',');
+      const urls2 = urlsParam2.split(',');
 
       // Gerar QR Codes e blobs
       urls.forEach((url, index) => {
-        gerarQRCode(url, textos[index]);
+        gerarQRCode(url,urls2[index],textos[index]);
       });
 
       // Exibir as imagens e o botão de download
