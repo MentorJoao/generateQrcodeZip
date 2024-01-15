@@ -53,7 +53,11 @@
     // Lista de blobs para download
     const blobsDownload = [];
     const textos = [];
-
+    
+    function removerEspacos(url) {
+      return url.replace(/\s+/g, '');
+    }
+    
     function gerarQRCode(url,url2, texto) {
       // Converter a imagem para um blob
       var urlComposta = url + '&idQRcode='+url2;
@@ -76,8 +80,8 @@
     // Verificar se os parâmetros estão presentes
     if (urlsParam && textosParam) {
       // Converter strings de parâmetros em arrays
-      const urls = urlsParam.split(',');
-      const textos = textosParam.split(',');
+      const urls = urlsParam.split(',').map(removerEspacos);
+      const textos = textosParam.split(',').map(removerEspacos);
       const urls2 = urlsParam2.split(',');
 
       // Gerar QR Codes e blobs
