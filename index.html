@@ -82,7 +82,7 @@
       // Converter strings de parâmetros em arrays
       const urls = urlsParam.split(',').map(removerEspacos);
       const textos = textosParam.split(',').map(removerEspacos);
-      const urls2 = urlsParam2.split(',');
+      const urls2 = urlsParam2.split(',').map(removerEspacos);;
 
       // Gerar QR Codes e blobs
       urls.forEach((url, index) => {
