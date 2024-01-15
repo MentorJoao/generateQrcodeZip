@@ -60,7 +60,7 @@
     
     function gerarQRCode(url,url2, texto) {
       // Converter a imagem para um blob
-      var urlComposta = url + '&idQRcode='+url2;
+      var urlComposta = removerEspacos(url + '&idQRcode='+url2);
       fetch(`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(urlComposta)}&size=100x100`)
         .then(response => response.blob())
         .then(blob => {
