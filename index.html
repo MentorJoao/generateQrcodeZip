@@ -55,7 +55,7 @@
     const textos = [];
     
     function removerEspacos(url) {
-      return url.replace(/\s+/g, '');
+      return url.trim();
     }
     
     function gerarQRCode(url,url2, texto) {
